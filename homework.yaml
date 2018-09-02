@@ -11,30 +11,26 @@
   hosts: nfs
   tasks:
     - name: NFS Exports
-      shell: exportfs
+      shell: exportfs | grep /srv/nfs | grep world
 
-- name: Install Packages and Configure Authentication
+- name: Install Packages Required in Bastion
   hosts: localhost
   tasks:
-    - name: Check required packages are present
+    - name: Make sure required packages are present
       yum:
         name:
-          - httpd-tools
-          - wget
-          - git
-          - net-tools
-          - bind-utils
-          - yum-utils
-          - iptables-services
-          - bridge-utils
-          - bash-completion
-          - kexec-tools
-          - sos
-          - psacct
-          - docker-1.13.1
+          - atomic-openshift-clients
           - atomic-openshift-utils
-        enablerepo: rhel-7-server-rpms,rhel-7-server-extras-rpms,rhel-7-server-ose-3.9-rpms,rhel-7-fast-datapath-rpms,rhel-7-server-ansible-2.4-rpms
         state: present
+
+- name: Generate Inventory Hosts File
+  hosts: localhost
+  tasks:
+    - name: Generate Inventory script
+      script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
+
+- name: Execute the openshift-ansible prerequisites
+  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
 - name: Verify Installation and Configuration of Docker
   hosts: nodes
@@ -48,51 +44,73 @@
     - name: Validate that the docker service is in running state
       shell: systemctl status docker | grep Active
 
-- name: Generate Inventory Hosts File
+- name: Execute the openshift-ansible Deployer
+  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+
+- name: Verify OpenShift Cluster
+  hosts: masters[0]
+  tasks:
+    - name: Copy the .kube directory from master1 to your bastion
+      fetch:
+        src: /root/.kube/config
+        dest: /root/.kube/config
+        flat: yes
+
+- name: Login and Obtain Cluster Information
   hosts: localhost
   tasks:
-    - name: Generate Inventory script
-      script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
+    - name: Login to OpenShift cluster
+      shell: oc login -u system:admin
 
-- name: Execute the openshift-ansible prerequisites
-  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+- name: Post Installation Configuration
+  hosts: localhost
+  tasks:
+    - name: Make sure you are system:admin
+      shell: oc whoami | grep system:admin
 
-# - name: Execute the openshift-ansible Deployer
-#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+- name: Create PVs for Users
+  hosts: nfs
+  tasks:
+    - name: Create directories for PVs
+      script: ./scripts/create_pvs.sh
+    - name: Restarting NFS Server...
+      shell: systemctl restart nfs-server
 
-# - name: Verify OpenShift Cluster
-#   hosts: masters[0]
-#   tasks:
-#     - name: copy the .kube directory from master1 to your bastion
-#       src: /root/.kube/config
-#       dest: /root/.kube/config
-#       flat: yes
+- name: Create 25 Definitions Files for PVs 5G Size
+  hosts: localhost
+  tasks:
+    - name: Create YAML definition files for 5GiB PVs
+      script: ./scripts/pvs_5Gsize.sh
 
-# - name: Post installation configuration
-#   hosts: localhost
-#   tasks:
-#     - name: make sure you are system:dmin
-#       shell: oc whoami | grep system:admin
+- name: Create 25 Definitions Files for PVs 10G Size
+  hosts: localhost
+  tasks:
+    - name: Create YAML definition files for 10GiB PVs
+      script: ./scripts/pvs_10Gsize.sh
 
-# - name: Create PVs for Users
-#   hosts: nfs
-#   tasks:
-#     - name:
-#       script: scripts/create_pvs.sh
-#     - name: Restarting NFS Server...
-#       shell: systemctl restart nfs-server
+- name: Create All PVs from Definitions Files
+  hosts: localhost
+  tasks:
+    - name: Create 25 x 5 GiB PVs and 25 x 10 GiB PVs
+      shell: oc apply -f ./pv
 
-# - name: Create 25 definitions files for PVs 5G size
-#   hosts: localhost
+- name: Fix NFS Persistent Volume Recycling
+  hosts: nodes
+  tasks:
+    - name: Pull OpenShift Recycler OCI image
+      shell: docker pull registry.access.redhat.com/openshift3/ose-recycler:latest
+    - name: Retag latest OpenShift Recycler image to be compatible
+      shell: docker tag registry.access.redhat.com/openshift3/ose-recycler:latest registry.access.redhat.com/openshift3/ose-recycler:v3.9.14
 
-# - name: Create 25 definitions files for PVs 10G size
-
-# - name: Create all PVs from definitions files
-
-# - name: Fix NFS Persistent Volume Recycling
-
-# - name: Smoke Test
-
+- name: Smoke Test
+  hosts: localhost
+  tasks:
+    - name: Create new project specific for smoke test run
+      shell: oc new-project smoke-test
+    - name: Verify the cluster deployment by installing sample NodeJS app
+      shell: oc new-app nodejs-mongo-persistent
+    # - name: Delete the sample project
+    #   shell: oc delete project smoke-test
 # - name: Jenkins Setup
 #   hosts: localhost
 #   tasks:
