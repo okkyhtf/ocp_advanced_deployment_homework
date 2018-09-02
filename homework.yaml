@@ -1,72 +1,72 @@
 ---
-- name: Prepare GUID ENV Variable Across All Hosts
-  hosts: all
-  tasks:
-    - name: Setup GUID as ENV variable on all hosts
-      shell: export GUID=`hostname | cut -d"." -f2`; echo "export GUID=$GUID" >> $HOME/.bashrc
-    - name: Validate the existence and value of GUID on all hosts
-      shell: echo GUID=$GUID
+# - name: Prepare GUID ENV Variable Across All Hosts
+#   hosts: all
+#   tasks:
+#     - name: Setup GUID as ENV variable on all hosts
+#       shell: export GUID=`hostname | cut -d"." -f2`; echo "export GUID=$GUID" >> $HOME/.bashrc
+#     - name: Validate the existence and value of GUID on all hosts
+#       shell: echo GUID=$GUID
 
-- name: Verify NFS Shared Volumes on Hosts
-  hosts: nfs
-  tasks:
-    - name: NFS Exports
-      shell: exportfs | grep /srv/nfs | grep world
+# - name: Verify NFS Shared Volumes on Hosts
+#   hosts: nfs
+#   tasks:
+#     - name: NFS Exports
+#       shell: exportfs | grep /srv/nfs | grep world
 
-- name: Install Packages Required in Bastion
-  hosts: localhost
-  tasks:
-    - name: Make sure required packages are present
-      yum:
-        name:
-          - atomic-openshift-clients
-          - atomic-openshift-utils
-        state: present
+# - name: Install Packages Required in Bastion
+#   hosts: localhost
+#   tasks:
+#     - name: Make sure required packages are present
+#       yum:
+#         name:
+#           - atomic-openshift-clients
+#           - atomic-openshift-utils
+#         state: present
 
-- name: Generate Inventory Hosts File
-  hosts: localhost
-  tasks:
-    - name: Generate Inventory script
-      script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
+# - name: Generate Inventory Hosts File
+#   hosts: localhost
+#   tasks:
+#     - name: Generate Inventory script
+#       script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
 
-- name: Execute the openshift-ansible prerequisites
-  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+# - name: Execute the openshift-ansible prerequisites
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
-- name: Verify Installation and Configuration of Docker
-  hosts: nodes
-  tasks:
-    - name: Validate supported docker version
-      shell: docker version | grep Version | grep 1.13.1
-    - name: Enable docker service to run on boot
-      shell: systemctl reenable docker
-    - name: Restart docker service
-      shell: systemctl restart docker
-    - name: Validate that the docker service is in running state
-      shell: systemctl status docker | grep Active
+# - name: Verify Installation and Configuration of Docker
+#   hosts: nodes
+#   tasks:
+#     - name: Validate supported docker version
+#       shell: docker version | grep Version | grep 1.13.1
+#     - name: Enable docker service to run on boot
+#       shell: systemctl reenable docker
+#     - name: Restart docker service
+#       shell: systemctl restart docker
+#     - name: Validate that the docker service is in running state
+#       shell: systemctl status docker | grep Active
 
-- name: Execute the openshift-ansible Deployer
-  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+# - name: Execute the openshift-ansible Deployer
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 
-- name: Verify OpenShift Cluster
-  hosts: masters[0]
-  tasks:
-    - name: Copy the .kube directory from master1 to your bastion
-      fetch:
-        src: /root/.kube/config
-        dest: /root/.kube/config
-        flat: yes
+# - name: Verify OpenShift Cluster
+#   hosts: masters[0]
+#   tasks:
+#     - name: Copy the .kube directory from master1 to your bastion
+#       fetch:
+#         src: /root/.kube/config
+#         dest: /root/.kube/config
+#         flat: yes
 
-- name: Login and Obtain Cluster Information
-  hosts: localhost
-  tasks:
-    - name: Login to OpenShift cluster
-      shell: oc login -u system:admin
+# - name: Login and Obtain Cluster Information
+#   hosts: localhost
+#   tasks:
+#     - name: Login to OpenShift cluster
+#       shell: oc login -u system:admin
 
-- name: Post Installation Configuration
-  hosts: localhost
-  tasks:
-    - name: Make sure you are system:admin
-      shell: oc whoami | grep system:admin
+# - name: Post Installation Configuration
+#   hosts: localhost
+#   tasks:
+#     - name: Make sure you are system:admin
+#       shell: oc whoami | grep system:admin
 
 - name: Create PVs for Users
   hosts: nfs
@@ -88,27 +88,27 @@
     - name: Create YAML definition files for 10GiB PVs
       script: ./scripts/pvs_10Gsize.sh
 
-- name: Create All PVs from Definitions Files
-  hosts: localhost
-  tasks:
-    - name: Create 25 x 5 GiB PVs and 25 x 10 GiB PVs
-      shell: oc apply -f ./pv
+# - name: Create All PVs from Definitions Files
+#   hosts: localhost
+#   tasks:
+#     - name: Create 25 x 5 GiB PVs and 25 x 10 GiB PVs
+#       shell: oc apply -f ./pv
 
-- name: Fix NFS Persistent Volume Recycling
-  hosts: nodes
-  tasks:
-    - name: Pull OpenShift Recycler OCI image
-      shell: docker pull registry.access.redhat.com/openshift3/ose-recycler:latest
-    - name: Retag latest OpenShift Recycler image to be compatible
-      shell: docker tag registry.access.redhat.com/openshift3/ose-recycler:latest registry.access.redhat.com/openshift3/ose-recycler:v3.9.14
+# - name: Fix NFS Persistent Volume Recycling
+#   hosts: nodes
+#   tasks:
+#     - name: Pull OpenShift Recycler OCI image
+#       shell: docker pull registry.access.redhat.com/openshift3/ose-recycler:latest
+#     - name: Retag latest OpenShift Recycler image to be compatible
+#       shell: docker tag registry.access.redhat.com/openshift3/ose-recycler:latest registry.access.redhat.com/openshift3/ose-recycler:v3.9.14
 
-- name: Smoke Test
-  hosts: localhost
-  tasks:
-    - name: Create new project specific for smoke test run
-      shell: oc new-project smoke-test
-    - name: Verify the cluster deployment by installing sample NodeJS app
-      shell: oc new-app nodejs-mongo-persistent
+# - name: Smoke Test
+#   hosts: localhost
+#   tasks:
+#     - name: Create new project specific for smoke test run
+#       shell: oc new-project smoke-test
+#     - name: Verify the cluster deployment by installing sample NodeJS app
+#       shell: oc new-app nodejs-mongo-persistent
     # - name: Delete the sample project
     #   shell: oc delete project smoke-test
 # - name: Jenkins Setup
