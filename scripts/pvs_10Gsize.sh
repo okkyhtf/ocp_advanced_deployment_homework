@@ -6,7 +6,7 @@ export nfspath="/srv/nfs/user-vols"
 
 mkdir -p ./pv
 
-for i in 1 .. 25
+for i in {26..50}
 do
    cat << EOF > ./pv/pv$i.yaml
 apiVersion: v1
