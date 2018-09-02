@@ -162,13 +162,13 @@
   hosts: masters
   tasks:
     - name: Creation of users
-      scripts: ./scripts/create_users.sh
+      script: ./scripts/create_users.sh
  
 - name: Assigning Labels to the Users According to Its Group
   hosts: localhost
   tasks:
     - name: Groups and labels
-      scripts: ./scripts/set_labels.sh
+      script: ./scripts/set_labels.sh
 
 # - name: Setup the environment for Alpha and Beta clients
 
