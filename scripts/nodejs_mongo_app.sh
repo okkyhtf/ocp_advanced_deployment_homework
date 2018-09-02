@@ -10,4 +10,4 @@ oc new-app nodejs-mongo-persistent
 oc status -v
 
 # Delete the sample project
-oc delete project smoke-test
+#oc delete project smoke-test

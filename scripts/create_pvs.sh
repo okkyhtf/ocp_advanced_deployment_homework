@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
 export nfspath="/srv/nfs/user-vols"
-export totalvols=200
 
-mkdir -p $nfspath/pv{1..$totalvols}
+mkdir -p $nfspath/pv{1..200}
 
 echo "Creating PV for users.."
 
-for pvnum in {1..$totalvols} ; do
+for pvnum in {1..200} ; do
   echo "$nfspath/pv${pvnum} *(rw,root_squash)" >> /etc/exports.d/openshift-uservols.exports
 done
 
