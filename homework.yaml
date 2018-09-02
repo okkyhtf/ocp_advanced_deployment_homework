@@ -20,9 +20,6 @@
 - name: Install packages and config auth
   hosts: localhost
   tasks:
-    - name: enable required repository
-      yum:
-        enablerepo: rhel-7-server-rpms
     - name: required packages are present
       yum:
         name: "{{ packages }}"
