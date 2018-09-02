@@ -109,6 +109,8 @@
 - name: Apply Network Policy Based Project Request
   hosts: localhost
   tasks:
+    - name: Label default project to apply network policy
+      shell: oc label namespace default name=default
     - name: Apply project request in default project
       shell: oc project default; oc apply -f project_request.yaml
 
@@ -136,7 +138,7 @@
     - name: Setup Jenkins with persistent storage
       script: ./scripts/jenkins_persistent.sh
 
-- name: Prepare and deploy OpenShift Tasks
+- name: Prepare and Deploy OpenShift Tasks
   hosts: localhost
   tasks:
     - name: Import OpenShift Tasks template to openshift project
@@ -156,8 +158,12 @@
     - name: Configure autoscaler for openshift-tasks
       shell: oc project cicd-prod; oc autoscale dc/tasks --min 1 --max 4 --cpu-percent=80
 
-# - name: Creation of users for Alpha and Beta clients
-
+- name: Creation of Users for Alpha and Beta Clients
+  hosts: masters
+  tasks:
+    - name: Creation of users
+      scripts: ./scripts/create_users.sh
+ 
 # - name: Assigning labels to the users according to its group
 
 # - name: Setup the environment for Alpha and Beta clients
