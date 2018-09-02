@@ -119,22 +119,22 @@
       replace:
         path: /etc/origin/master/master-config.yaml
         regexp: "projectRequestTemplate: ''"
-        replace: "projectRequestTemplate: \"default/project-request\"""
+        replace: "projectRequestTemplate: \"default/project-request\""
         backup: yes
     - name: Restart OpenShift masters
       shell: systemctl restart atomic-openshift-master-api; systemctl restart atomic-openshift-master-controllers
 
 - name: Smoke Test
- hosts: localhost
- tasks:
-   - name: Create project for smoke-test
-     script: ./scripts/nodejs_mongo_persistent.sh
+  hosts: localhost
+  tasks:
+    - name: Create project for smoke-test
+      script: ./scripts/nodejs_mongo_persistent.sh
 
 - name: Jenkins Setup
- hosts: localhost
- tasks:
-   - name: Setup Jenkins with persistent storage
-     script: ./scripts/jenkins_persistent.sh
+  hosts: localhost
+  tasks:
+    - name: Setup Jenkins with persistent storage
+      script: ./scripts/jenkins_persistent.sh
 
 - name: Prepare and deploy OpenShift Tasks
   hosts: localhost
