@@ -1,53 +1,53 @@
 ---
-- name: Generate Inventory Hosts File
-  hosts: localhost
-  tasks:
-    - name: Generate inventory script
-      script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
-    - name: Reload inventory
-      meta: refresh_inventory
+# - name: Generate Inventory Hosts File
+#   hosts: localhost
+#   tasks:
+#     - name: Generate inventory script
+#       script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
+#     - name: Reload inventory
+#       meta: refresh_inventory
 
-- name: Prepare GUID ENV Variable Across All Hosts
-  hosts: all
-  tasks:
-    - name: Setup GUID as ENV variable on all hosts
-      shell: export GUID=`hostname | cut -d"." -f2`; echo "export GUID=$GUID" >> $HOME/.bashrc
-    - name: Validate the existence and value of GUID on all hosts
-      shell: echo GUID=$GUID
+# - name: Prepare GUID ENV Variable Across All Hosts
+#   hosts: all
+#   tasks:
+#     - name: Setup GUID as ENV variable on all hosts
+#       shell: export GUID=`hostname | cut -d"." -f2`; echo "export GUID=$GUID" >> $HOME/.bashrc
+#     - name: Validate the existence and value of GUID on all hosts
+#       shell: echo GUID=$GUID
 
-- name: Verify NFS Shared Volumes on Hosts
-  hosts: nfs
-  tasks:
-    - name: NFS Exports
-      shell: exportfs | grep /srv/nfs | grep world
+# - name: Verify NFS Shared Volumes on Hosts
+#   hosts: nfs
+#   tasks:
+#     - name: NFS Exports
+#       shell: exportfs | grep /srv/nfs | grep world
 
-- name: Install Packages Required in Bastion
-  hosts: localhost
-  tasks:
-    - name: Make sure required packages are present
-      yum:
-        name:
-          - atomic-openshift-clients
-          - atomic-openshift-utils
-        state: present
+# - name: Install Packages Required in Bastion
+#   hosts: localhost
+#   tasks:
+#     - name: Make sure required packages are present
+#       yum:
+#         name:
+#           - atomic-openshift-clients
+#           - atomic-openshift-utils
+#         state: present
 
-- name: Execute the openshift-ansible prerequisites
-  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+# - name: Execute the openshift-ansible prerequisites
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
-- name: Verify Installation and Configuration of Docker
-  hosts: nodes
-  tasks:
-    - name: Validate supported docker version
-      shell: docker version | grep Version | grep 1.13.1
-    - name: Enable docker service to run on boot
-      shell: systemctl reenable docker
-    - name: Restart docker service
-      shell: systemctl restart docker
-    - name: Validate that the docker service is in running state
-      shell: systemctl status docker | grep Active
+# - name: Verify Installation and Configuration of Docker
+#   hosts: nodes
+#   tasks:
+#     - name: Validate supported docker version
+#       shell: docker version | grep Version | grep 1.13.1
+#     - name: Enable docker service to run on boot
+#       shell: systemctl reenable docker
+#     - name: Restart docker service
+#       shell: systemctl restart docker
+#     - name: Validate that the docker service is in running state
+#       shell: systemctl status docker | grep Active
 
-- name: Execute the openshift-ansible Deployer
-  import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+# - name: Execute the openshift-ansible Deployer
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 
 - name: Verify OpenShift Cluster
   hosts: masters[0]
