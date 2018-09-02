@@ -108,6 +108,10 @@ spec:
                         openshift.newApp(APP_NAME)
                         def svc = openshift.selector('svc', APP_NAME)
                         svc.expose()
+                        if (!openshift.selector("hpa", "${APP_NAME}-hpa").exists()) {
+                          def dc = openshift.selector("dc", APP_NAME)
+                          dc.autoscale("--min 1 --max 4 --cpu-percent=80")
+                        }
                       }
                     }
                   }
