@@ -110,11 +110,21 @@
 #    - name: Create project for smoke-test
 #      script: ./scripts/nodejs_mongo_persistent.sh
 
- - name: Jenkins Setup
-   hosts: localhost
-   tasks:
-     - name: Setup Jenkins with persistent storage
-       script: ./scripts/jenkins_persistent.sh
+# - name: Jenkins Setup
+#   hosts: localhost
+#   tasks:
+#     - name: Setup Jenkins with persistent storage
+#       script: ./scripts/jenkins_persistent.sh
+
+- name: Prepare and deploy OpenShift Tasks
+  hosts: localhost
+  tasks:
+    - name: Import OpenShift Tasks template to openshift project
+      shell: oc project openshift; oc apply -f https://raw.githubusercontent.com/OpenShiftDemos/openshift-tasks/master/app-template.yaml
+    - name: Create tasks project and install tasks
+      shell: oc new-project tasks; oc new-app openshift-tasks
+    - name: Setup build configuration for tasks
+      shell: oc project tasks; oc apply -f https://raw.githubusercontent.com/OpenShiftDemos/openshift-tasks/master/pipeline-bc.yaml
 
 # - name: HPA configuration on production deployment of openshift-tasks
 #   hosts: localhost
