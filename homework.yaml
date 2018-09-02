@@ -19,6 +19,7 @@
     - name: Check required packages are present
       yum:
         name:
+          - httpd-tools
           - wget
           - git
           - net-tools
