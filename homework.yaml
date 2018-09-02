@@ -14,75 +14,102 @@
 - name: Verify NFS Shared Volumes on Hosts
   hosts: nfs
   tasks:
+    - name: NFS Exports
+      shell: exportfs
 
 - name: Install packages and config auth
   hosts: localhost
   tasks:
+    - name: enable required repository
+      yum:
+        enablerepo: rhel-7-server-rpms
     - name: required packages are present
       yum:
-        name:
-          - ????
-          - ????
+        name: "{{ packages }}"
+        enablerepo: "{{ repolist }}"
         state: present
+      vars:
+        packages:
+          - wget
+          - git
+          - net-tools
+          - bind-utils
+          - yum-utils
+          - iptables-services
+          - bridge-utils
+          - bash-completion
+          - kexec-tools
+          - sos
+          - psacct
+          - docker-1.13.1
+          - atomic-openshift-utils
+        repolist:
+          - rhel-7-server-rpms
+          - rhel-7-server-extras-rpms
+          - rhel-7-server-ose-3.9-rpms
+          - rhel-7-fast-datapath-rpms
+          - rhel-7-server-ansible-2.4-rpms
 
-- name: Generate Inventory Hosts File
-  hosts: localhost
-  tasks:
-    - name: Generate Inventory script
-      script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
+# - name: Generate Inventory Hosts File
+#   hosts: localhost
+#   tasks:
+#     - name: Generate Inventory script
+#       script: /root/ocp_advanced_deployment_homework/scripts/generate_inventory.sh
 
-- name: Execute the openshift-ansible prerequisites
-  import_playbook: ???
+# - name: Execute the openshift-ansible prerequisites
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
-- name: Execute the openshift-ansible Deployer
-  import_playbook: ???
+# - name: Execute the openshift-ansible Deployer
+#   import_playbook: /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 
-- name: Verify OpenShift Cluster
-  hosts: masters[0]
-  tasks:
-    - name: copy the .kube directory from master1 to your bastion
-    ????
+# - name: Verify OpenShift Cluster
+#   hosts: masters[0]
+#   tasks:
+#     - name: copy the .kube directory from master1 to your bastion
+#       src: /root/.kube/config
+#       dest: /root/.kube/config
+#       flat: yes
 
-- name: Post installation configuration
-  hosts: localhost
-  tasks:
-    - name: make sure you are system:dmin
-      shell: oc whoami | grep system:admin
+# - name: Post installation configuration
+#   hosts: localhost
+#   tasks:
+#     - name: make sure you are system:dmin
+#       shell: oc whoami | grep system:admin
 
-- name: Create PVs for Users
-  hosts: nfs
-  tasks:
-    - name:
-      script: ????
-    - name: Restarting NFS Server...
-      shell: systemctl restart nfs-server
+# - name: Create PVs for Users
+#   hosts: nfs
+#   tasks:
+#     - name:
+#       script: scripts/create_pvs.sh
+#     - name: Restarting NFS Server...
+#       shell: systemctl restart nfs-server
 
-- name: Create 25 definitions files for PVs 5G size
-  hosts: localhost
+# - name: Create 25 definitions files for PVs 5G size
+#   hosts: localhost
 
-- name: Create 25 definitions files for PVs 10G size
+# - name: Create 25 definitions files for PVs 10G size
 
-- name: Create all PVs from definitions files
+# - name: Create all PVs from definitions files
 
-- name: Fix NFS Persistent Volume Recycling
+# - name: Fix NFS Persistent Volume Recycling
 
-- name: Smoke Test
+# - name: Smoke Test
 
-- name: Jenkins Setup
-  hosts: localhost
-  tasks:
-    - name: jenkins setup
-      script: ???
+# - name: Jenkins Setup
+#   hosts: localhost
+#   tasks:
+#     - name: jenkins setup
+#       script: ???
 
-- name: HPA configuration on production deployment of openshift-tasks
-  hosts: localhost
-  tasks:
+# - name: HPA configuration on production deployment of openshift-tasks
+#   hosts: localhost
+#   tasks:
 
-- name: Creation of users for Alpha and Beta clients
+# - name: Creation of users for Alpha and Beta clients
 
-- name: Assigning labels to the users according to its group
+# - name: Assigning labels to the users according to its group
 
-- name: Setup the environment for Alpha and Beta clients
+# - name: Setup the environment for Alpha and Beta clients
 
 
-  ....
+#   ....
