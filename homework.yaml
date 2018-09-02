@@ -23,7 +23,7 @@
     - name: required packages are present
       yum:
         name: "{{ packages }}"
-        enablerepo: "{{ repolist }}"
+        # enablerepo: "{{ repolist }}"
         state: present
       vars:
         packages:
@@ -40,12 +40,12 @@
           - psacct
           - docker-1.13.1
           - atomic-openshift-utils
-        repolist:
-          - rhel-7-server-rpms
-          - rhel-7-server-extras-rpms
-          - rhel-7-server-ose-3.9-rpms
-          - rhel-7-fast-datapath-rpms
-          - rhel-7-server-ansible-2.4-rpms
+        # repolist:
+        #   - rhel-7-server-rpms
+        #   - rhel-7-server-extras-rpms
+        #   - rhel-7-server-ose-3.9-rpms
+        #   - rhel-7-fast-datapath-rpms
+        #   - rhel-7-server-ansible-2.4-rpms
 
 # - name: Generate Inventory Hosts File
 #   hosts: localhost
