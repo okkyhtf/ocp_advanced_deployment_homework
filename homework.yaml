@@ -104,27 +104,17 @@
 #     - name: Retag latest OpenShift Recycler image to be compatible
 #       shell: docker tag registry.access.redhat.com/openshift3/ose-recycler:latest registry.access.redhat.com/openshift3/ose-recycler:v3.9.14
 
-- name: Smoke Test
-  hosts: localhost
-  tasks:
-    - name: Create project for smoke-test
-      shell: oc new-project smoke-test
-    - name: Deploy sample smoke-test app
-      shell: oc new-app nodejs-mongo-persistent
-    - name: Validate deployment for up to 5 minutes
-      shell: curl `oc get route nodejs-mongo-persistent -o go-template='{{.spec.host}}'`
-      register: result
-      until: result.rc == 0
-      retries: 5
-      delay: 60
-    - name: Remove smoke-test project
-      shell: oc delete project smoke-test
+#- name: Smoke Test
+#  hosts: localhost
+#  tasks:
+#    - name: Create project for smoke-test
+#      script: ./scripts/nodejs_mongo_persistent.sh
 
-# - name: Jenkins Setup
-#   hosts: localhost
-#   tasks:
-#     - name: jenkins setup
-#       script: ???
+ - name: Jenkins Setup
+   hosts: localhost
+   tasks:
+     - name: Setup Jenkins with persistent storage
+       script: ./scripts/jenkins_persistent.sh
 
 # - name: HPA configuration on production deployment of openshift-tasks
 #   hosts: localhost
