@@ -1,15 +1,11 @@
 ---
-- name: Prepare GUID environment variable across all hosts
+- name: Prepare GUID ENV Variable Across All Hosts
   hosts: all
   tasks:
-    - name: All GUID env variable
+    - name: Setup GUID as ENV variable on all hosts
       shell: export GUID=`hostname | cut -d"." -f2`; echo "export GUID=$GUID" >> $HOME/.bashrc
-
-- name: Verify Installation and Configuration of Docker
-  hosts: nodes
-  tasks:
-    - name: docker restart
-      shell: systemctl restart docker
+    - name: Validate the existence and value of GUID on all hosts
+      shell: echo GUID=$GUID
 
 - name: Verify NFS Shared Volumes on Hosts
   hosts: nfs
@@ -17,16 +13,12 @@
     - name: NFS Exports
       shell: exportfs
 
-- name: Install packages and config auth
+- name: Install Packages and Configure Authentication
   hosts: localhost
   tasks:
-    - name: required packages are present
+    - name: Check required packages are present
       yum:
-        name: "{{ packages }}"
-        # enablerepo: "{{ repolist }}"
-        state: present
-      vars:
-        packages:
+        name:
           - wget
           - git
           - net-tools
@@ -40,12 +32,20 @@
           - psacct
           - docker-1.13.1
           - atomic-openshift-utils
-        # repolist:
-        #   - rhel-7-server-rpms
-        #   - rhel-7-server-extras-rpms
-        #   - rhel-7-server-ose-3.9-rpms
-        #   - rhel-7-fast-datapath-rpms
-        #   - rhel-7-server-ansible-2.4-rpms
+        enablerepo: rhel-7-server-rpms,rhel-7-server-extras-rpms,rhel-7-server-ose-3.9-rpms,rhel-7-fast-datapath-rpms,rhel-7-server-ansible-2.4-rpms
+        state: present
+
+- name: Verify Installation and Configuration of Docker
+  hosts: nodes
+  tasks:
+    - name: Validate supported docker version
+      shell: docker version | grep Version | grep 1.13.1
+    - name: Enable docker service to run on boot
+      shell: systemctl reenable docker
+    - name: Restart docker service
+      shell: systemctl restart docker
+    - name: Validate that the docker service is in running state
+      shell: systemctl status docker | grep Active
 
 # - name: Generate Inventory Hosts File
 #   hosts: localhost
