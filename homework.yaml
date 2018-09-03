@@ -147,12 +147,10 @@
       shell: oc project openshift; oc apply -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/eap/eap64-image-stream.json
     - name: Create dev environment and install tasks
       shell: oc project cicd-dev; oc new-app openshift-tasks
-    - name: Create test environment skeleton for tasks
-      shell: oc project cicd-test; oc new-app tasks; oc expose svc tasks
-    - name: Create prod environment skeleton for tasks
-      shell: oc project cicd-prod; oc new-app tasks; oc expose svc tasks
     - name: Setup build configuration for tasks
       shell: oc project cicd; oc apply -f jenkins_pipeline.yaml
+    - name: Trigger initial build pipeline
+      shell: oc start-build tasks-bc --follow
 
 - name: HPA Configuration on Production Deployment of openshift-tasks
   hosts: localhost
