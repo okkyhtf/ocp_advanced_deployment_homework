@@ -147,6 +147,10 @@
       shell: oc project openshift; oc apply -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/eap/eap64-image-stream.json
     - name: Create dev environment and install tasks
       shell: oc project cicd-dev; oc new-app openshift-tasks
+    - name: Create test environment skeleton for tasks
+      shell: oc project cicd-test; oc new-app tasks; oc expose svc tasks
+    - name: Create prod environment skeleton for tasks
+      shell: oc project cicd-prod; oc new-app tasks; oc expose svc tasks
     - name: Setup build configuration for tasks
       shell: oc project cicd; oc apply -f jenkins_pipeline.yaml
 
@@ -156,7 +160,7 @@
     - name: Set CPU request for autoscaler
       shell: oc project cicd-prod; oc set resources dc tasks --requests=cpu=100m
     - name: Configure autoscaler for openshift-tasks
-      shell: oc project cicd-prod; oc autoscale dc/tasks --min 1 --max 4 --cpu-percent=80
+      shell: oc project cicd-prod; oc autoscale dc tasks --min 1 --max 4 --cpu-percent=80
 
 - name: Creation of Users for Alpha and Beta Clients
   hosts: masters
